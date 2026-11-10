@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Presentation/">
+    <Project Path="../StudentRegistration.Client/StudentRegistration.Client.csproj" Id="ac7cd015-3fe9-4416-9180-b8f001dbbefc" />
+    <Project Path="../StudentRegistration.WebForms/StudentRegistration.WebForms.csproj" Id="ea20efc2-1da7-4e21-aa16-fd9ebcb379fc" />
+    <Project Path="StudentRegistration.WinForms.csproj" Id="64d00d1f-f7c2-49ac-a79c-51b58113e4dc" />
+  </Folder>
+  <Project Path="../StudentRegistration.API/StudentRegistration.API.csproj" Id="70f1ff00-b3ca-4d15-beb4-29a70bd5c298" />
+  <Project Path="../StudentRegistration.BusinessLogic/StudentRegistration.BusinessLogic.csproj" Id="d2109f07-f880-43eb-9d62-46a81fe38d39" />
+  <Project Path="../StudentRegistration.DataAccess/StudentRegistration.DataAccess.csproj" Id="34b30718-61a0-4ab9-8cc5-22475df2618f" />
+</Solution>
