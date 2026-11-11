@@ -37,7 +37,7 @@ function loadStudents() {
 
         error: function (xhr, status, error) {
             console.error("Error loading students:", error);
-            sshowToast("Unable to load students.", "error");
+            showToast("Unable to load students.", "error");
         }
     });
 }
@@ -108,7 +108,7 @@ function displayPagination() {
     // prev button
     $("#pagination").append(`
         <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
-            <button class="page-link" data-page=${currentPage - 1}">
+            <button class="page-link" data-page="${currentPage - 1}">
                 Previous
             </button>
         </li>
@@ -191,7 +191,6 @@ function loadCourses() {
             );
 
             $.each(courses, function (index, course) {
-                console.log("Course:", course);
                 $("#course").append(
                     `<option value="${course.CourseID}">
                         ${course.CourseName}
@@ -201,8 +200,8 @@ function loadCourses() {
         },
 
         error: function (xhr, status, error) {
-            console.error("Error loading courses: error");
-            showToast("Unable to load courses.", "error");
+            console.error("Error loading courses:", error);
+            showToast("Unable to load courses.", error);
         }
     });
 }
@@ -248,6 +247,7 @@ $(document).on("submit", "#studentForm", function (e) {
             $("#studentForm").find("button[type='submit']")
                 .text("Register Student");
 
+            $("#studentTableBody").empty();
             loadStudents();
         },
 
@@ -287,7 +287,7 @@ $(document).on("click", ".btn-delete", function () {
         },
 
         error: function (xhr) {
-            console.error(xhr, responseText);
+            console.error(xhr.responseText);
             showToast(
                 xhr.responseJSON?.Message ||
                 "Unable to delete student.",
@@ -318,6 +318,7 @@ $(document).on("click", ".btn-edit", function () {
             $("#studentForm").find("button[type='submit']")
                 .text("Update Student");
 
+            //scrolls to the form
             $("html, body").animate({
                 scrollTop: $("#studentForm").offset().top - 100
             }, 500);
@@ -325,7 +326,7 @@ $(document).on("click", ".btn-edit", function () {
 
         error: function (xhr) {
             console.error("Edit error:",xhr.responseText);
-            showToast("Unable to load students.", "error");
+            showToast("Unable to load students.", error);
         }
     });
 });
@@ -335,7 +336,7 @@ $("#btnGenerateReport").on("click", function () {
     const reportWindow = window.open("", "_blank");
 
     if (!reportWindow) {
-        alert("Please allow pop-ips to generate the report");
+        alert("Please allow pop-ups to generate the report");
         return;
     }
 
@@ -418,6 +419,7 @@ function generateStudentReport(students, reportWindow) {
 
                 .report-header h1 {
                     margin-bottom: 8px;
+                    color: #2c5f8a;
                 }
 
                 .report-info {
@@ -429,24 +431,35 @@ function generateStudentReport(students, reportWindow) {
                 table {
                     width: 100%;
                     border-collapse: collapse;
+                    border: 1px solid #d6e4f0;
                 }
 
                 th, td {
-                    border: 1px solid #ddd;
+                    border: 1px solid #d6e4f0;
                     padding: 12px;
                     text-align: left;
                 }
 
                 th {
-                    background-color: #f2f2f2;
+                    background-color: #2c5f8a;
+                    color: white;
+                    font-weight: 600;
                 }
 
-                tr:nth-child(even) {
-                    background-color: #f9f9f9;
+                tbody tr:nth-child(even) {
+                    background-color: #eef5fb;
+                }
+
+                tbody tr:nth-child(odd) {
+                    background-color: #ffffff;
+                }
+
+                tbody tr:hover {
+                    background-color: #dceaf5;
                 }
 
                 .print-button {
-                    background-color: #0d6efd;
+                    background-color: #2c5f8a;
                     color: white;
                     border: none;
                     padding: 10px 20px;
@@ -455,15 +468,16 @@ function generateStudentReport(students, reportWindow) {
                     margin-bottom: 25px;
                 }
 
-                @media print {
-                    body {
-                        margin: 15mm;
-                    }
+                .print-button:hover {
+                    background-color: #214969;
+                }
 
+                @media print {
                     .print-button {
                         display: none;
                     }
 
+                    /* Repeat table headers on every printed page */
                     thead {
                         display: table-header-group;
                     }
@@ -471,8 +485,22 @@ function generateStudentReport(students, reportWindow) {
                     tr {
                         page-break-inside: avoid;
                     }
+
+                    /* Preserve table colours when printing */
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                     @page {
+                        @bottom-center {
+                            content: "Page " counter(page) " of " counter(pages);
+                            font-size: 10px;
+                            color: #666;
+                        }
+                    }
                 }
             </style>
+
         </head>
 
         <body>
