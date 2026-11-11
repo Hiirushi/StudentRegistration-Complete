@@ -13,6 +13,7 @@ $(document).ready(function () {
     loadCourses();
 });
 
+//fetches students
 function loadStudents() {
     $.ajax({
         url: apiBaseUrl + "/api/students",
@@ -48,6 +49,7 @@ function displayStudents() {
         startIndex + recordsPerPage
     );
 
+    //empty results
     if (paginatedStudents.length === 0) {
         $("#studentTableBody").html(`
             <tr>
@@ -180,7 +182,7 @@ $("#searchStudent, #filterCourse").on("input change", function () {
     displayPagination();
 });
 
-// clear search
+// clear search and filter
 $("#btnClearFilters").on("click", function () {
     $("#searchStudent").val("");
     $("#filterCourse").val("0");
@@ -386,7 +388,7 @@ $(document).on("click", ".btn-edit", function () {
 
         error: function (xhr) {
             console.error("Edit error:",xhr.responseText);
-            showToast("Unable to load students.", error);
+            showToast("Unable to load students.", "error");
         }
     });
 });
