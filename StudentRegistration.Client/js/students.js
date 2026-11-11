@@ -23,13 +23,7 @@ function loadStudents() {
 
             allStudents = students;
 
-            const totalPages = Math.ceil(
-                allStudents.length / recordsPerPage
-            );
-
-            if (currentPage > totalPages) {
-                currentPage = Math.max(1, totalPages);
-            }
+            currentPage = 1;
 
             displayStudents();
             displayPagination();
@@ -45,15 +39,16 @@ function loadStudents() {
 function displayStudents() {
     $("#studentTableBody").empty();
 
-    const startIndex = (currentPage - 1) * recordsPerPage;
-    const endIndex = startIndex + recordsPerPage;
+    const filteredStudents = getFilteredStudents();
 
-    const studentsToDisplay = allStudents.slice(
+    const startIndex = (currentPage - 1) * recordsPerPage;
+
+    const paginatedStudents = filteredStudents.slice(
         startIndex,
-        endIndex
+        startIndex + recordsPerPage
     );
 
-    if (studentsToDisplay.length === 0) {
+    if (paginatedStudents.length === 0) {
         $("#studentTableBody").html(`
             <tr>
                 <td colspan="5" class="text-center">
@@ -64,7 +59,7 @@ function displayStudents() {
         return;
     }
 
-    $.each(studentsToDisplay, function (index, student) {
+    $.each(paginatedStudents, function (index, student) {
         let row = `
             <tr>
                 <td>${student["Full Name"]}</td>
@@ -97,8 +92,10 @@ function displayStudents() {
 function displayPagination() {
     $("#pagination").empty();
 
+    const filteredStudents = getFilteredStudents();
+
     const totalPages = Math.ceil(
-        allStudents.length / recordsPerPage
+        filteredStudents.length / recordsPerPage
     );
 
     if (totalPages <= 1) {
@@ -137,17 +134,58 @@ function displayPagination() {
 
 // handle pagination clicks
 $(document).on("click", "#pagination .page-link", function () {
-    const selectedPage = parseInt($(this).attr("data-page"));
+    const page = Number($(this).data("page"));
 
     const totalPages = Math.ceil(
-        allStudents.length / recordsPerPage
+        getFilteredStudents().length / recordsPerPage
     );
 
-    if (selectedPage < 1 || selectedPage > totalPages) {
-        return;
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        displayStudents();
+        displayPagination();
     }
+});
 
-    currentPage = selectedPage;
+// search and filtering
+function getFilteredStudents() {
+
+    const searchText = ($("#searchStudent").val() || "")
+        .toLowerCase().trim();
+
+    const selectedCourse = $("#filterCourse").val();
+
+    return allStudents.filter(function (student) {
+
+        const fullName = (student["Full Name"] || "").toLowerCase();
+        const address = (student.Address || "").toLowerCase();
+
+        const matchesSearch =
+            fullName.includes(searchText) ||
+            address.includes(searchText);
+
+        const matchesCourse =
+            selectedCourse === "0" ||
+            String(student.CourseID) === selectedCourse;
+
+        return matchesSearch && matchesCourse;
+    });
+}
+
+
+$("#searchStudent, #filterCourse").on("input change", function () {
+    currentPage = 1;
+
+    displayStudents();
+    displayPagination();
+});
+
+// clear search
+$("#btnClearFilters").on("click", function () {
+    $("#searchStudent").val("");
+    $("#filterCourse").val("0");
+
+    currentPage = 1;
 
     displayStudents();
     displayPagination();
@@ -176,6 +214,16 @@ function showToast(message, type = "success") {
     toast.show();
 }
 
+
+// reset button
+$("#btnReset").on("click", function () {
+    $("#studentForm")[0].reset();
+
+    editingStudentID = null;
+
+    $("#btnSubmit").text("Register Student");
+});
+
 // load all courses
 function loadCourses() {
     $.ajax({
@@ -185,9 +233,14 @@ function loadCourses() {
 
         success: function (courses) {
             $("#course").empty();
+            $("#filterCourse").empty();
 
             $("#course").append(
                 '<option value="">Select a course</option>'
+            );
+
+            $("#filterCourse").append(
+                '<option value="0">All Courses</option>'
             );
 
             $.each(courses, function (index, course) {
@@ -196,6 +249,13 @@ function loadCourses() {
                         ${course.CourseName}
                     </option>`
                 );
+
+                $("#filterCourse").append(
+                    `<option value="${course.CourseID}">
+                        ${course.CourseName}
+                    </option>`
+                );
+
             });
         },
 
