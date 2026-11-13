@@ -55,7 +55,12 @@ namespace StudentRegistration.API.Controllers
         {
             try
             {
-                studentService.RegisterStudent(student);
+                bool isRegistered = studentService.RegisterStudent(student);
+
+                if (!isRegistered)
+                {
+                    return InternalServerError();
+                }
 
                 return Ok(new
                 {
@@ -80,7 +85,13 @@ namespace StudentRegistration.API.Controllers
                 }
 
                 student.StudentId = id;
-                studentService.UpdateStudent(student);
+                bool isUpdated = studentService.UpdateStudent(student);
+
+                if (!isUpdated)
+                {
+                    return NotFound();
+                }
+
                 return Ok(new
                 {
                     message = "Student updated successfully"
@@ -98,7 +109,13 @@ namespace StudentRegistration.API.Controllers
         {
             try
             {
-                studentService.DeleteStudent(id);
+                bool isDeleted = studentService.DeleteStudent(id);
+
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
+
                 return Ok(new
                 {
                     message = "Student deleted succesfully"

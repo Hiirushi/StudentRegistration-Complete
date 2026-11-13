@@ -1,0 +1,94 @@
+﻿
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+    padding: 20px 10px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .form-group input {
+        width: 100%;
+    }
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+#studentsGrid {
+    margin-top: 20px;
+}
+
+.k-grid {
+    font-size: 14px;
+}
+
+.k-grid th {
+    font-weight: 600;
+}
+
+#editStudentWindow .form-group {
+    margin-bottom: 18px;
+}
+
+#editStudentWindow .form-group input {
+    width: 100%;
+}
+
+#editStudentWindow .button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+
+.student-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.student-details-header h2 {
+    margin: 0;
+}
+
+#viewStudentReportBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#studentsGrid .k-grid-header .k-header {
+    font-weight: bold;
+}

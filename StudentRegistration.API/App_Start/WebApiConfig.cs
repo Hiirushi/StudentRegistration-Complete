@@ -9,7 +9,7 @@ namespace StudentRegistration.API
         {
             // Enable cors
             var cors = new EnableCorsAttribute(
-                "https://localhost:44379",
+                "https://localhost:44366",
                 "*",
                 "*"
             );

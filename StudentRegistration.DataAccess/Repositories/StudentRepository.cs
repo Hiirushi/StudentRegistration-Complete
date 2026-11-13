@@ -15,12 +15,12 @@ namespace StudentRegistration.DataAccess.Repositories
            this.dbConnectionFactory = dbConnectionFactory;
         }
 
-        public void AddStudent(Student student)
+        public bool AddStudent(Student student)
         {
             using (SqlConnection connection = dbConnectionFactory.CreateConnection())
             {
-                string query = @"INSERT INTO Students(FirstName, LastName, Address, DateOfBirth, CourseID)
-                VALUES(@FirstName, @LastName, @Address, @DateOfBirth, @CourseID)";
+                string query = @"INSERT INTO Students(FirstName, LastName, Address, DateOfBirth, CourseID, IsDeleted, CreatedDate)
+                VALUES(@FirstName, @LastName, @Address, @DateOfBirth, @CourseID, 0, GETDATE())";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -39,7 +39,8 @@ namespace StudentRegistration.DataAccess.Repositories
                     command.Parameters.Add("@CourseID", SqlDbType.Int).Value = student.CourseId;
 
                     connection.Open();
-                    command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
                 }
             }
         }
@@ -56,6 +57,7 @@ namespace StudentRegistration.DataAccess.Repositories
                 c.CourseName AS Course,
                 c.CourseID
                 FROM Students s INNER JOIN Courses c ON s.CourseID = c.CourseID
+                WHERE s.IsDeleted = 0
                 ORDER BY s.StudentID DESC";
 
                 using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
@@ -71,7 +73,7 @@ namespace StudentRegistration.DataAccess.Repositories
             using (SqlConnection connection = dbConnectionFactory.CreateConnection())
             {
                 string query = @"SELECT StudentID, FirstName, LastName, Address, DateOfBirth, CourseID
-                                 FROM Students WHERE StudentID = @StudentID";
+                                 FROM Students WHERE StudentID = @StudentID AND IsDeleted = 0";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -99,13 +101,13 @@ namespace StudentRegistration.DataAccess.Repositories
             }
         }
 
-        public void UpdateStudent(Student student)
+        public bool UpdateStudent(Student student)
         {
             using (SqlConnection connection = dbConnectionFactory.CreateConnection())
             {
                 string query = @"UPDATE Students SET FirstName = @FirstName,
-                                   LastName = @LastName, Address = @Address, DateOfBirth = @DateOfBirth, CourseID = @CourseID
-                                    WHERE StudentID = @StudentID";
+                                   LastName = @LastName, Address = @Address, DateOfBirth = @DateOfBirth, CourseID = @CourseID, UpdatedDate = GETDATE()
+                                    WHERE StudentID = @StudentID AND IsDeleted = 0";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -119,23 +121,28 @@ namespace StudentRegistration.DataAccess.Repositories
                     command.Parameters.AddWithValue("@StudentID", student.StudentId);
 
                     connection.Open();
-                    command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
                 }
             }
         }
 
-        public void DeleteStudent(int studentID)
+        public bool DeleteStudent(int studentID)
         {
             using (SqlConnection connection = dbConnectionFactory.CreateConnection())
             {
-                string query = @"DELETE FROM Students WHERE StudentID = @StudentID";
+                string query = @"UPDATE Students 
+                                SET IsDeleted = 1,
+                                    DeletedDate = GETDATE() 
+                                WHERE StudentID = @StudentID AND IsDeleted = 0";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@StudentID", studentID);
 
                     connection.Open();
-                    command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
                 }
             }
         }
@@ -156,6 +163,7 @@ namespace StudentRegistration.DataAccess.Repositories
                 FROM Students s
                 INNER JOIN Courses c
                 ON s.CourseID = c.CourseID
+                WHERE s.IsDelete = 0
                 ORDER BY c.CourseName, s.FirstName";
 
                 using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))

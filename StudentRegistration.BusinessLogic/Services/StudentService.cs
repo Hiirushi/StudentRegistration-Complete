@@ -57,10 +57,10 @@ namespace StudentRegistration.BusinessLogic.Services
             }
         }
 
-        public void RegisterStudent(Student student)
+        public bool RegisterStudent(Student student)
         {
             ValidateStudent(student);
-            studentRepository.AddStudent(student);
+            return studentRepository.AddStudent(student);
         }
 
         public DataTable GetAllStudents()
@@ -73,23 +73,20 @@ namespace StudentRegistration.BusinessLogic.Services
             return studentRepository.GetStudentByID(studentID);
         }
 
-        public void UpdateStudent(Student student)
+        public bool UpdateStudent(Student student)
         {
             ValidateStudent(student);
-            studentRepository.UpdateStudent(student);
+            return studentRepository.UpdateStudent(student);
         }
 
-        public void DeleteStudent(int studentID)
+        public bool DeleteStudent(int studentID)
         {
-            studentRepository.DeleteStudent(studentID);
+            return studentRepository.DeleteStudent(studentID);
         }
 
         public DataTable GetStudentsForReport()
         {
-            DataTable students = new DataTable();
-            students = studentRepository.GetStudentsForReport();
-
-            return students;
+            return studentRepository.GetStudentsForReport();
         }
     }
 }
