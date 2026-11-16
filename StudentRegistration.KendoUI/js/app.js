@@ -26,7 +26,6 @@
 
         schema: {
             parse: function (response) {
-                console.log("Courses API response:", response);
                 return $.map(response, function (course) {
                     return {
                         CourseId: course.CourseID,
@@ -86,10 +85,7 @@
     $("#studentForm").on("submit", function (e) {
         e.preventDefault();
 
-        console.log("Register button clicked!");
-
         if (!validator.validate()) {
-            console.log("Form validation failed!");
             return;
         }
 
@@ -109,7 +105,6 @@
             courseId: parseInt(courseId, 10)
         };
 
-        console.log("Student Details: ", student);
         $.ajax({
             url: apiBaseUrl + "/api/students",
             type: "POST",
@@ -118,7 +113,6 @@
             data: JSON.stringify(student),
 
             success: function (response) {
-                console.log("Registration successful:", response);
                 notification.show(
                     response.message || "Student registered succesfully",
                     "success"
@@ -163,14 +157,6 @@
                 url: apiBaseUrl + "/api/students",
                 type: "GET",
                 dataType: "json"
-            },
-
-            destroy: {
-                url: function (data) {
-                    return apiBaseUrl + "/api/students/" + data.StudentID;
-                },
-                type: "DELETE",
-                dataType: "json"
             }
         },
 
@@ -212,7 +198,7 @@
             }
 
             notification.show(
-                "Unable to delete student. Please try again.",
+                "Unable to load or update student records",
                 "error"
             );
         }
@@ -252,7 +238,65 @@
         actions: ["Close"]
     }).data("kendoWindow");
 
-    //kendo grid
+    function showDeleteConfirmation(studentId) {
+
+        var dialogElement = $("<div></div>").appendTo("body");
+
+        dialogElement.kendoDialog({
+            width: "400px",
+            title: "Confirm Delete",
+            closable: true,
+            modal: true,
+            content: "<p>Are you sure you want to delete this student?</p>",
+
+            actions: [
+                {
+                    text: "Cancel"
+                },
+                {
+                    text: "Yes, Delete",
+                    primary: true,
+                    action: function () {
+
+                        $.ajax({
+                            url: apiBaseUrl + "/api/students/" + studentId,
+                            type: "DELETE",
+                            dataType: "json",
+
+                            success: function (response) {
+                                notification.show(
+                                    "Student deleted successfully!",
+                                    "success"
+                                );
+
+                                studentsDataSource.read();
+                            },
+
+                            error: function (xhr) {
+
+                                console.error("Delete failed!");
+                                console.error("Status:", xhr.status);
+                                console.error("Response:", xhr.responseText);
+
+                                notification.show(
+                                    "Unable to delete student.",
+                                    "error"
+                                );
+                            }
+                        });
+                    }
+                }
+            ],
+
+            close: function () {
+                this.destroy();
+                dialogElement.remove();
+            }
+        });
+
+        dialogElement.data("kendoDialog").open();
+    }
+
     $("#studentsGrid").kendoGrid({
 
         dataSource: studentsDataSource,
@@ -268,11 +312,11 @@
         columns: [
             {
                 field: "FullName",
-                title: "Full Name",
+                title: "Full Name"
             },
             {
                 field: "Address",
-                title: "Address",
+                title: "Address"
             },
             {
                 field: "DateOfBirth",
@@ -281,7 +325,7 @@
             },
             {
                 field: "Course",
-                title: "Course",
+                title: "Course"
             },
             {
                 title: "Actions",
@@ -297,7 +341,6 @@
                                 $(e.currentTarget).closest("tr")
                             );
 
-                            console.log("Selected student:", dataItem);
                             openEditWindow(dataItem);
                         }
                     },
@@ -311,40 +354,7 @@
                                 $(e.currentTarget).closest("tr")
                             );
 
-                            console.log("Delete button clicked!");
-                            console.log("Student ID:", dataItem.StudentID);
-
-                            if (!confirm("Are you sure you want to delete this student?")) {
-                                return;
-                            }
-
-                            $.ajax({
-                                url: apiBaseUrl + "/api/students/" + dataItem.StudentID,
-                                type: "DELETE",
-                                dataType: "json",
-
-                                success: function (response) {
-                                    console.log("Delete response:", response);
-
-                                    notification.show(
-                                        "Student deleted successfully!",
-                                        "success"
-                                    );
-
-                                    studentsDataSource.read();
-                                },
-
-                                error: function (xhr) {
-                                    console.error("Delete failed!");
-                                    console.error("Status:", xhr.status);
-                                    console.error("Response:", xhr.responseText);
-
-                                    notification.show(
-                                        "Unable to delete student.",
-                                        "error"
-                                    );
-                                }
-                            });
+                            showDeleteConfirmation(dataItem.StudentID);
                         }
                     }
                 ]
@@ -359,8 +369,6 @@
             dataType: "json",
 
             success: function (response) {
-
-                console.log("Student details:", response);
 
                 $("#editStudentId").val(response.StudentId || response.StudentID);
 

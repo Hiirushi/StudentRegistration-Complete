@@ -21,6 +21,7 @@ namespace StudentRegistration.API.Controllers
             {
                 using (var handler = new HttpClientHandler())
                 {
+                    //using windows credentials
                     handler.UseDefaultCredentials = true;
 
                     using (var client = new HttpClient(handler))
@@ -39,6 +40,8 @@ namespace StudentRegistration.API.Controllers
                                 (int)ssrsResponse.StatusCode + ":" + error
                             );
                         }
+
+                        //byte array
                         byte[] pdfBytes = await ssrsResponse.Content.ReadAsByteArrayAsync();
 
                         var response = Request.CreateResponse(HttpStatusCode.OK);
@@ -47,6 +50,7 @@ namespace StudentRegistration.API.Controllers
 
                         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
 
+                        //display the file inside the browser
                         response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline")
                         {
                             FileName = "StudentDetailsReport.pdf"
